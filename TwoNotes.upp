@@ -1,0 +1,10 @@
+uses
+	CtrlLib,
+	RichEdit;
+
+file
+	TwoNotes.cpp;
+    TwoNotes.lay
+mainconfig
+	"" = "GUI";
+
