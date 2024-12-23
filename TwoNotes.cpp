@@ -1,3 +1,12 @@
+// 
+// TwoNotes.cpp
+// 
+// Use ultimatepp (https://ultimatepp.org/) pixelmode branch to compile.
+//
+// Note that this is unfinished work in progress.
+//
+
+
 #include <CtrlLib/CtrlLib.h>
 #include <RichEdit/RichEdit.h>
 
@@ -52,8 +61,24 @@ void TwoNotes::Quit()
 
 GUI_APP_MAIN
 {
+
+	RichText txt;
+	{
+		RichPara para;
+		RichPara::Format fmt;
+		//(Font&)fmt = Monospace(120).Bold();
+		(Font&)fmt = Monospace(130);
+		para.Cat("", fmt);
+		txt.Cat(para);
+	}	
+	
+	RichEdit re;
 	TwoNotes twoNotes;
 	twoNotes.edit.PixelMode();
+	twoNotes.edit.ShowCodes(Null);
+	
+	twoNotes.edit.SetQTF(AsQTF(txt));	
+	
 	twoNotes.Sizeable();
 	twoNotes << twoNotes.edit.HSizePos().VSizePos(20, 0);
 	twoNotes.Run();

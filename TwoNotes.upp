@@ -4,7 +4,7 @@ uses
 
 file
 	TwoNotes.cpp;
-    TwoNotes.lay
+
 mainconfig
 	"" = "GUI";
 
