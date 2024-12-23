@@ -62,6 +62,14 @@ void TwoNotes::Quit()
 GUI_APP_MAIN
 {
 
+	RichEdit re;
+	TwoNotes twoNotes;
+	twoNotes.edit.PixelMode();
+	twoNotes.edit.ShowCodes(Null);	//hide marks
+	
+	twoNotes.edit.Clear();
+	//Set initial font to fixed size one by adding empty text object to the editor.
+	//Maybe there is a better way to do it...?
 	RichText txt;
 	{
 		RichPara para;
@@ -70,13 +78,7 @@ GUI_APP_MAIN
 		(Font&)fmt = Monospace(130);
 		para.Cat("", fmt);
 		txt.Cat(para);
-	}	
-	
-	RichEdit re;
-	TwoNotes twoNotes;
-	twoNotes.edit.PixelMode();
-	twoNotes.edit.ShowCodes(Null);
-	
+	}
 	twoNotes.edit.SetQTF(AsQTF(txt));	
 	
 	twoNotes.Sizeable();
