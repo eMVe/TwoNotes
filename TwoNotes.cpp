@@ -10,6 +10,7 @@
 
 #include <CtrlLib/CtrlLib.h>
 #include <RichEdit/RichEdit.h>
+#include "helpers.h"
 
 using namespace Upp;
 
@@ -34,7 +35,7 @@ class TwoNotes : public WithTwoNotesLayout<TopWindow>
 	bool SelectFileNameForSave();
 	
 	FileSel fileSel;
-	String fileName;
+	String m_fileName;
 	
 			
 	typedef TwoNotes CLASSNAME;
@@ -84,10 +85,10 @@ void TwoNotes::Open()
 	char cwd[MAX_PATH];
 	getcwd(cwd, MAX_PATH);
 	fileSel.Type("QTF Files","*.qtf").Type("All Files","*.*").DefaultExt("qtf");	
-	if(!fileSel.BaseDir(cwd).ExecuteOpen()) return;	
-	fileName = fileSel.Get();
+	if(!fileSel.BaseDir(cwd).ExecuteOpen()) return;
+	m_fileName = fileSel.Get();
 	
-	std::ifstream t(fileName);
+	std::ifstream t(m_fileName);
 	std::string str((std::istreambuf_iterator<char>(t)),
 	std::istreambuf_iterator<char>());
 	
@@ -111,8 +112,9 @@ void TwoNotes::New()
 
 void TwoNotes::Save()
 {
-	if(IsEmpty(fileName)) {
+	if(IsEmpty(m_fileName)) {
 		if(!SelectFileNameForSave()) {
+			ErrorOK("Not saved");
 			return;
 		}
 	}
@@ -125,7 +127,7 @@ bool TwoNotes::SelectFileNameForSave()
 	getcwd(cwd, MAX_PATH);
 	fileSel.Type("QTF Files","*.qtf").Type("All Files","*.*").DefaultExt("qtf");	
 	if(!fileSel.BaseDir(cwd).ExecuteSaveAs()) return false;	
-	fileName = fileSel.Get();	
+	m_fileName = fileSel.Get();	
 	return true;
 }
 
@@ -134,12 +136,46 @@ void TwoNotes::SaveEditorContent()
 	String qtf = edit.GetQTF();
 	std::string input(qtf);
     std::cin >> input;
-    std::ofstream out(fileName);
+    std::ofstream out(m_fileName);
     out << input;
     out.close();
     edit.ClearModify();
-}
+    
+#if 0
+    RichText txt = ParseQTF(qtf);
+    
+	Index<String> css;
+	VectorMap<String, String> links;
+	String outdir = GetExeDirFile("html");
+	RealizeDirectory(outdir);
+	String body = EncodeHtml(txt, css, links, outdir);
+		
+	String html = AppendFileName(outdir, "test.html");
 
+	SaveFile(html,
+	         "<html><STYLE TYPE=\"text/css\"><!--\r\n" + AsCss(css) + "\r\n-->\r\n</STYLE>\r\n"
+		            "<body>" + body + "</body></html>");	
+#else
+    
+    RichText txt = ParseQTF(qtf);
+        
+	String outdir = GetExeDirFile("html");
+	RealizeDirectory(outdir);
+	
+	std::string fileNameNoExt(m_fileName);
+	fileNameNoExt = fileNameNoExt.substr(0,fileNameNoExt.find("."));
+	
+	RealizeDirectory(outdir + "/" + String(fileNameNoExt) + ".img/");				//make sure that dir for images exists
+	String imageDir = String(fileNameNoExt) + ".img/";
+	String body = EncodeHtmlSimple(txt, outdir, imageDir);	//also save images
+	String fileName = AppendFileName(outdir, String(fileNameNoExt) + ".html");
+	SaveFile(fileName,
+	         "<html><body><pre>" + body + "</pre></body></html>");	
+	
+#endif
+    
+    
+}
 
 void TwoNotes::SaveAs()
 {
@@ -163,6 +199,7 @@ void TwoNotes::ClearEditor()
 		txt.Cat(para);
 	}
 	edit.SetQTF(AsQTF(txt));
+    edit.ClearModify();
 }
 
 void TwoNotes::Quit()

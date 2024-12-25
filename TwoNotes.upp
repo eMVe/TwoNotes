@@ -3,6 +3,8 @@ uses
 	RichEdit;
 
 file
+	helpers.h,
+	helpers.cpp,
 	TwoNotes.cpp;
 
 mainconfig
