@@ -8,6 +8,7 @@ file
 	helpers.cpp,
 	icon.rc,
 	TwoNotes.iml,
+	TwoNotes.lay,
 	TwoNotes.cpp;
 
 mainconfig

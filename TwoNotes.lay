@@ -1,5 +1,5 @@
 LAYOUT(TwoNotesLayout, 1000, 600)
 	ITEM(MenuBar, menu, LeftPosZ(0, 216).TopPosZ(0, 20))
-	ITEM(RichEdit, edit, LeftPosZ(4, 988).TopPosZ(20, 572))
+	ITEM(RichEdit, editor, LeftPosZ(4, 988).TopPosZ(20, 544))
 END_LAYOUT
 

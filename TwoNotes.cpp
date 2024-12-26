@@ -43,13 +43,13 @@ class TwoNotes : public WithTwoNotesLayout<TopWindow>
 	String m_fileName;
 	bool m_bAutoGenerateHtml;
 	bool m_bAutoGeneratePdf;
-	
 			
 	typedef TwoNotes CLASSNAME;
 	
 	
-	
 public:
+	StatusBar statusBar;
+
 	virtual void DragAndDrop(Point, PasteClip& d);
 	void ClearEditor();
 	String GetFileName();
@@ -83,7 +83,7 @@ TwoNotes::TwoNotes()
 
 void TwoNotes::Destroy()
 {
-	if(edit.IsModified()) {
+	if(editor.IsModified()) {
 		switch(PromptYesNoCancel("Do you want to save the changes to the document?")) {
 		case 1:
 			Save();
@@ -112,17 +112,20 @@ void TwoNotes::Open()
 	
 void TwoNotes::LoadEditorContent()
 {
-	std::ifstream t(m_fileName);
-	std::string str((std::istreambuf_iterator<char>(t)),
-	std::istreambuf_iterator<char>());
-	
-	edit.SetQTF(str.c_str());
-	edit.ClearModify();	
+	if(FileExists(m_fileName)) {
+		std::ifstream t(m_fileName);
+		std::string str((std::istreambuf_iterator<char>(t)),
+		std::istreambuf_iterator<char>());
+		
+		editor.SetQTF(str.c_str());
+		editor.ClearModify();	
+		statusBar = m_fileName;
+	}
 }
 
 void TwoNotes::New()
 {
-	if(edit.IsModified()) {
+	if(editor.IsModified()) {
 		switch(PromptYesNoCancel("Do you want to save the changes to the document first?")) {
 		case 1:
 			Save();
@@ -157,7 +160,7 @@ bool TwoNotes::SelectFileNameForSave()
 
 void TwoNotes::GenerateHtml()
 {
-	String qtf = edit.GetQTF();
+	String qtf = editor.GetQTF();
     RichText txt = ParseQTF(qtf);
         
 	String outdir = GetExeDirFile("html");
@@ -186,25 +189,27 @@ void TwoNotes::GeneratePdf()
 	
 	Size page = Size(3968, 6074);
 	PdfDraw pdf;
-	UPP::Print(pdf, edit.Get(), page);
+	UPP::Print(pdf, editor.Get(), page);
 	SaveFile(fileName, pdf.Finish());	
 }
 
 void TwoNotes::SaveEditorContent()
 {
-	String qtf = edit.GetQTF();
+	String qtf = editor.GetQTF();
 	std::string input(qtf);
     std::cin >> input;
     std::ofstream out(m_fileName);
     out << input;
     out.close();
-    edit.ClearModify();
+    editor.ClearModify();
 	if(m_bAutoGenerateHtml) {	//keep html in sync with qtf
 		GenerateHtml();
 	}
 	if(m_bAutoGeneratePdf) {
 		//GeneratePdf();		//doesn't scale to our needs yet
 	}
+	statusBar = m_fileName;
+	statusBar.Temporary("Saved...");
 }
 
 void TwoNotes::SaveAs()
@@ -216,7 +221,7 @@ void TwoNotes::SaveAs()
 
 void TwoNotes::ClearEditor()
 {
-	edit.Clear();
+	editor.Clear();
 	//Set initial font to fixed size one by adding empty text object to the editor.
 	//Maybe there is a better way to do it...?
 	RichText txt;
@@ -224,12 +229,13 @@ void TwoNotes::ClearEditor()
 		RichPara para;
 		RichPara::Format fmt;
 		//(Font&)fmt = Monospace(120).Bold();
-		(Font&)fmt = Monospace(130);
+		(Font&)fmt = Monospace(130);	//TODO font size configurable
 		para.Cat("", fmt);
 		txt.Cat(para);
 	}
-	edit.SetQTF(AsQTF(txt));
-    edit.ClearModify();
+	editor.SetQTF(AsQTF(txt));
+    editor.ClearModify();
+    statusBar = "";
 }
 
 void TwoNotes::Quit()
@@ -267,8 +273,8 @@ GUI_APP_MAIN
 
 	RichEdit re;
 	TwoNotes twoNotes;
-	twoNotes.edit.PixelMode();
-	twoNotes.edit.ShowCodes(Null);	//hide marks
+	twoNotes.editor.PixelMode();
+	twoNotes.editor.ShowCodes(Null);	//hide marks
 	twoNotes.ClearEditor();
 
 	if(!twoNotes.GetFileName().IsEmpty()) {
@@ -276,6 +282,8 @@ GUI_APP_MAIN
 	}
 	
 	twoNotes.Sizeable();
-	twoNotes << twoNotes.edit.HSizePos().VSizePos(20, 0);
+	twoNotes << twoNotes.editor.HSizePos().VSizePos(20, 0);
+	twoNotes.AddFrame(twoNotes.statusBar);
+
 	twoNotes.Run();
 }
