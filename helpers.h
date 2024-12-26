@@ -13,7 +13,7 @@ String EncodeHtmlSimple(const RichText& text,
 
 String EncodeHtmlSimple(const RichText& text, const String& path, const String& base = Null);
 
-           
+
 class SimpleHtmlObjectSaver : public HtmlObjectSaver
 {
 public:
@@ -28,7 +28,16 @@ private:
 	int imtolerance;
 	int im;
 };
-              
+
+
+class TwoFileSel : public FileSel
+{
+public:
+	TwoFileSel & InitialDir(const char *dir) { SetDir(dir); return *this; }
+	TwoFileSel();
+};
+
 
 }
+
 #endif

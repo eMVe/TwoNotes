@@ -1,8 +1,8 @@
-// 
+//
 // helpers.cpp
 //
 // by Michal Vanka (github.com/eMVe)
-// 
+//
 // Use ultimatepp (https://ultimatepp.org/) pixelmode branch to compile.
 //
 
@@ -42,7 +42,7 @@ String AsHtmlSimple(const RichTxt& text, const RichStyles& styles,
               HtmlObjectSaver& object_saver,
               RichPara::Number& n)
 {
-	
+
 	String html;
 	for(int i = 0; i < text.GetPartCount(); i++) {
 		if(text.IsTable(i)) {
@@ -178,6 +178,11 @@ String EncodeHtmlSimple2(const RichText& text,
 String EncodeHtmlSimple(const RichText& text, const String& path, const String& base) {
 	VectorMap<String, String> escape;
 	return EncodeHtmlSimple2(text, path, base, escape, 0);
+}
+
+
+TwoFileSel::TwoFileSel() : FileSel()
+{
 }
 
 }
