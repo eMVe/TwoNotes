@@ -93,7 +93,7 @@ void TwoNotes::Destroy()
 			return;
 		}
 	}
-	exit(0);
+	Close();
 }
 
 String TwoNotes::GetFileName()
