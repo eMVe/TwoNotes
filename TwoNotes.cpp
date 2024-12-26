@@ -34,10 +34,11 @@ class TwoNotes : public WithTwoNotesLayout<TopWindow>
 	void Quit();
 	void Destroy();
 
-	void SaveEditorContent();
+	bool SaveEditorContent();
 	bool SelectFileNameForSave();
 	void GenerateHtml();
 	void GeneratePdf();
+	bool SaveIt();
 
 	TwoFileSel fileSel;
 	String m_fileName;
@@ -86,13 +87,13 @@ void TwoNotes::Destroy()
 	if(editor.IsModified()) {
 		switch(PromptYesNoCancel("Do you want to save the changes to the document?")) {
 		case 1:
-			Save();
-			break;
+			if(SaveIt() == false) return;
+			else break;
 		case -1:
 			return;
 		}
 	}
-	delete this;
+	exit(0);
 }
 
 String TwoNotes::GetFileName()
@@ -128,24 +129,31 @@ void TwoNotes::New()
 	if(editor.IsModified()) {
 		switch(PromptYesNoCancel("Do you want to save the changes to the document first?")) {
 		case 1:
-			Save();
-			break;
+			if(SaveIt() == false) return;
+			else break;
 		case -1:
 			return;
 		}
 	}
 	ClearEditor();
+    m_fileName = "";
+    statusBar = "";
 }
 
 void TwoNotes::Save()
 {
+	SaveIt();
+}
+
+bool TwoNotes::SaveIt()
+{
 	if(IsEmpty(m_fileName)) {
 		if(!SelectFileNameForSave()) {
 			ErrorOK("Not saved");
-			return;
+			return false;
 		}
 	}
-	SaveEditorContent();
+	return SaveEditorContent();
 }
 
 bool TwoNotes::SelectFileNameForSave()
@@ -197,7 +205,7 @@ void TwoNotes::GeneratePdf()
 	SaveFile(fileName, pdf.Finish());
 }
 
-void TwoNotes::SaveEditorContent()
+bool TwoNotes::SaveEditorContent()
 {
 	String qtf = editor.GetQTF();
 	std::string input(qtf);
@@ -214,6 +222,7 @@ void TwoNotes::SaveEditorContent()
 	}
 	statusBar = m_fileName;
 	statusBar.Temporary("Saved...");
+	return true;
 }
 
 void TwoNotes::SaveAs()
@@ -239,7 +248,6 @@ void TwoNotes::ClearEditor()
 	}
 	editor.SetQTF(AsQTF(txt));
     editor.ClearModify();
-    statusBar = "";
 }
 
 void TwoNotes::Quit()
