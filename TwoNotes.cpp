@@ -35,7 +35,6 @@ class TwoNotes : public WithTwoNotesLayout<TopWindow>
 	void Destroy();
 	
 	void SaveEditorContent();
-	void LoadEditorContent();
 	bool SelectFileNameForSave();
 	void GenerateHtml();
 	void GeneratePdf();
@@ -53,6 +52,8 @@ class TwoNotes : public WithTwoNotesLayout<TopWindow>
 public:
 	virtual void DragAndDrop(Point, PasteClip& d);
 	void ClearEditor();
+	String GetFileName();
+	void LoadEditorContent();
 	TwoNotes();	
 };
 
@@ -74,7 +75,10 @@ TwoNotes::TwoNotes()
 	});	
 	
 	WhenClose = THISBACK(Destroy);
-	
+
+	if(CommandLine().size()) {
+		m_fileName = CommandLine()[0];
+	}
 }
 
 void TwoNotes::Destroy()
@@ -89,6 +93,11 @@ void TwoNotes::Destroy()
 		}
 	}
 	delete this;
+}
+
+String TwoNotes::GetFileName()
+{
+	return m_fileName;
 }
 
 void TwoNotes::Open()
@@ -155,7 +164,7 @@ void TwoNotes::GenerateHtml()
 	RealizeDirectory(outdir);
 	
 	String pathNoExt = m_fileName.Left(m_fileName.ReverseFind('.'));	//assume that m_fileName has at least one dot in it
-	String fileNameNoExt = GetFileName(pathNoExt);
+	String fileNameNoExt = ::GetFileName(pathNoExt);
 	
 	RealizeDirectory(outdir + "/" + fileNameNoExt + ".img/");				//make sure that dir for images exists
 	String imageDir = fileNameNoExt + ".img/";
@@ -172,7 +181,7 @@ void TwoNotes::GeneratePdf()
 	RealizeDirectory(outdir);
 	
 	String pathNoExt = m_fileName.Left(m_fileName.ReverseFind('.'));	//assume that m_fileName has at least one dot in it
-	String fileNameNoExt = GetFileName(pathNoExt);
+	String fileNameNoExt = ::GetFileName(pathNoExt);
 	String fileName = AppendFileName(outdir, fileNameNoExt + ".pdf");
 	
 	Size page = Size(3968, 6074);
@@ -261,6 +270,10 @@ GUI_APP_MAIN
 	twoNotes.edit.PixelMode();
 	twoNotes.edit.ShowCodes(Null);	//hide marks
 	twoNotes.ClearEditor();
+
+	if(!twoNotes.GetFileName().IsEmpty()) {
+		twoNotes.LoadEditorContent();
+	}
 	
 	twoNotes.Sizeable();
 	twoNotes << twoNotes.edit.HSizePos().VSizePos(20, 0);
