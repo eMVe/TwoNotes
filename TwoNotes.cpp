@@ -168,16 +168,16 @@ void TwoNotes::SaveEditorContent()
 	String outdir = GetExeDirFile("html");
 	RealizeDirectory(outdir);
 	
-	std::string fileNameNoExt(m_fileName);
-	fileNameNoExt = fileNameNoExt.substr(0,fileNameNoExt.find("."));
+	String pathNoExt = m_fileName.Left(m_fileName.ReverseFind('.'));	//assume that m_fileName has at least one dot in it
+	String fileNameNoExt = GetFileName(pathNoExt);
 	
-	RealizeDirectory(outdir + "/" + String(fileNameNoExt) + ".img/");				//make sure that dir for images exists
-	String imageDir = String(fileNameNoExt) + ".img/";
+	RealizeDirectory(outdir + "/" + fileNameNoExt + ".img/");				//make sure that dir for images exists
+	String imageDir = fileNameNoExt + ".img/";
 	String body = EncodeHtmlSimple(txt, outdir, imageDir);	//also save images
-	String fileName = AppendFileName(outdir, String(fileNameNoExt) + ".html");
+	String fileName = AppendFileName(outdir, fileNameNoExt + ".html");
 	SaveFile(fileName,
 	         "<html><body><pre>" + body + "</pre></body></html>");	
-	
+
 #endif
     
     
