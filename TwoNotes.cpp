@@ -274,8 +274,7 @@ void TwoNotes::DragAndDrop(Point, PasteClip& d)
 
 GUI_APP_MAIN
 {
-
-	RichEdit re;
+	RichEdit re;						//TODO not used, REMOVE
 	TwoNotes twoNotes;
 	twoNotes.editor.PixelMode();
 	twoNotes.editor.ShowCodes(Null);	//hide marks
