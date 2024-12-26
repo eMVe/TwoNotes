@@ -12,6 +12,7 @@
 
 #include <CtrlLib/CtrlLib.h>
 #include <RichEdit/RichEdit.h>
+#include <PdfDraw/PdfDraw.h>
 #include "helpers.h"
 
 using namespace Upp;
@@ -36,9 +37,13 @@ class TwoNotes : public WithTwoNotesLayout<TopWindow>
 	void SaveEditorContent();
 	void LoadEditorContent();
 	bool SelectFileNameForSave();
+	void GenerateHtml();
+	void GeneratePdf();
 	
 	FileSel fileSel;
 	String m_fileName;
+	bool m_bAutoGenerateHtml;
+	bool m_bAutoGeneratePdf;
 	
 			
 	typedef TwoNotes CLASSNAME;
@@ -52,6 +57,8 @@ public:
 };
 
 TwoNotes::TwoNotes()
+	:m_bAutoGenerateHtml(true)
+	,m_bAutoGeneratePdf(true)
 {
 	CtrlLayout(*this, "Two Notes V 0.0.1");
 	
@@ -139,32 +146,9 @@ bool TwoNotes::SelectFileNameForSave()
 	return true;
 }
 
-void TwoNotes::SaveEditorContent()
+void TwoNotes::GenerateHtml()
 {
 	String qtf = edit.GetQTF();
-	std::string input(qtf);
-    std::cin >> input;
-    std::ofstream out(m_fileName);
-    out << input;
-    out.close();
-    edit.ClearModify();
-    
-#if 0
-    RichText txt = ParseQTF(qtf);
-    
-	Index<String> css;
-	VectorMap<String, String> links;
-	String outdir = GetExeDirFile("html");
-	RealizeDirectory(outdir);
-	String body = EncodeHtml(txt, css, links, outdir);
-		
-	String html = AppendFileName(outdir, "test.html");
-
-	SaveFile(html,
-	         "<html><STYLE TYPE=\"text/css\"><!--\r\n" + AsCss(css) + "\r\n-->\r\n</STYLE>\r\n"
-		            "<body>" + body + "</body></html>");	
-#else
-    
     RichText txt = ParseQTF(qtf);
         
 	String outdir = GetExeDirFile("html");
@@ -178,11 +162,40 @@ void TwoNotes::SaveEditorContent()
 	String body = EncodeHtmlSimple(txt, outdir, imageDir);	//also save images
 	String fileName = AppendFileName(outdir, fileNameNoExt + ".html");
 	SaveFile(fileName,
-	         "<html><body><pre>" + body + "</pre></body></html>");	
+	         "<html><body><pre>" + body + "</pre></body></html>");		
+}
 
-#endif
-    
-    
+void TwoNotes::GeneratePdf()
+{
+        
+	String outdir = GetExeDirFile("pdf");
+	RealizeDirectory(outdir);
+	
+	String pathNoExt = m_fileName.Left(m_fileName.ReverseFind('.'));	//assume that m_fileName has at least one dot in it
+	String fileNameNoExt = GetFileName(pathNoExt);
+	String fileName = AppendFileName(outdir, fileNameNoExt + ".pdf");
+	
+	Size page = Size(3968, 6074);
+	PdfDraw pdf;
+	UPP::Print(pdf, edit.Get(), page);
+	SaveFile(fileName, pdf.Finish());	
+}
+
+void TwoNotes::SaveEditorContent()
+{
+	String qtf = edit.GetQTF();
+	std::string input(qtf);
+    std::cin >> input;
+    std::ofstream out(m_fileName);
+    out << input;
+    out.close();
+    edit.ClearModify();
+	if(m_bAutoGenerateHtml) {	//keep html in sync with qtf
+		GenerateHtml();
+	}
+	if(m_bAutoGeneratePdf) {
+		//GeneratePdf();		//doesn't scale to our needs yet
+	}
 }
 
 void TwoNotes::SaveAs()
