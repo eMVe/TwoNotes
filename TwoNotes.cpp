@@ -32,6 +32,7 @@ class TwoNotes : public WithTwoNotesLayout<TopWindow>
 	void Destroy();
 	
 	void SaveEditorContent();
+	void LoadEditorContent();
 	bool SelectFileNameForSave();
 	
 	FileSel fileSel;
@@ -43,13 +44,14 @@ class TwoNotes : public WithTwoNotesLayout<TopWindow>
 	
 	
 public:
+	virtual void DragAndDrop(Point, PasteClip& d);
 	void ClearEditor();
 	TwoNotes();	
 };
 
 TwoNotes::TwoNotes()
 {
-	CtrlLayout(*this, "Two Notes");
+	CtrlLayout(*this, "Two Notes V 0.0.1");
 	
 	menu.Set([=](Bar& bar) {
 		bar.Sub("File", [=](Bar& bar) {
@@ -87,7 +89,11 @@ void TwoNotes::Open()
 	fileSel.Type("QTF Files","*.qtf").Type("All Files","*.*").DefaultExt("qtf");	
 	if(!fileSel.BaseDir(cwd).ExecuteOpen()) return;
 	m_fileName = fileSel.Get();
+	LoadEditorContent();
+}
 	
+void TwoNotes::LoadEditorContent()
+{
 	std::ifstream t(m_fileName);
 	std::string str((std::istreambuf_iterator<char>(t)),
 	std::istreambuf_iterator<char>());
@@ -205,6 +211,31 @@ void TwoNotes::ClearEditor()
 void TwoNotes::Quit()
 {
 	Destroy();
+}
+
+void TwoNotes::DragAndDrop(Point, PasteClip& d)
+{
+	if(IsAvailableFiles(d)) {
+		Vector<String> fn = GetFiles(d);
+		for(int open = 0; open < 2; open++) {
+			for(int i = 0; i < fn.GetCount(); i++) {
+				String ext = GetFileExt(fn[i]);
+				if(FileExists(fn[i]) && (ext == ".qtf")) {
+					if(open) {
+						m_fileName = fn[i];
+						LoadEditorContent();
+					}
+					else {
+						if(d.Accept())
+							break;
+						return;
+					}
+				}
+			}
+			if(!d.IsAccepted())
+				return;
+		}
+	}
 }
 
 GUI_APP_MAIN
