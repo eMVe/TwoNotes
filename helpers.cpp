@@ -1,3 +1,11 @@
+// 
+// helpers.cpp
+//
+// by Michal Vanka (github.com/eMVe)
+// 
+// Use ultimatepp (https://ultimatepp.org/) pixelmode branch to compile.
+//
+
 #include "helpers.h"
 
 #include <CtrlLib/CtrlLib.h>

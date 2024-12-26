@@ -1,10 +1,12 @@
 // 
 // TwoNotes.cpp
+//
+// by Michal Vanka (github.com/eMVe)
 // 
 // Use ultimatepp (https://ultimatepp.org/) pixelmode branch to compile.
 //
-// Note that this is unfinished work in progress.
-// Note: in examples/UWord/UWord.cpp exists a complete word like prototype
+// Note: This is unfinished work in progress.
+// Note: Portions taken from examples/UWord/UWord.cpp
 //
 
 
