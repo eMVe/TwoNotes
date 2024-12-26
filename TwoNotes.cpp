@@ -163,7 +163,11 @@ void TwoNotes::GenerateHtml()
 	String qtf = editor.GetQTF();
     RichText txt = ParseQTF(qtf);
 
-	String outdir = GetExeDirFile("html");
+   	String outdir = ::GetFileFolder(m_fileName);
+
+   	if(outdir.IsEmpty()) outdir = "html";
+   	else outdir += "/html";
+
 	RealizeDirectory(outdir);
 
 	String pathNoExt = m_fileName.Left(m_fileName.ReverseFind('.'));	//assume that m_fileName has at least one dot in it
