@@ -1,11 +1,13 @@
 uses
 	CtrlLib,
-    PdfDraw,
+	PdfDraw,
 	RichEdit;
 
 file
 	helpers.h,
 	helpers.cpp,
+	icon.rc,
+	TwoNotes.iml,
 	TwoNotes.cpp;
 
 mainconfig
