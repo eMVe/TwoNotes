@@ -185,4 +185,56 @@ TwoFileSel::TwoFileSel() : FileSel()
 {
 }
 
+//TNPrint taken from RichTextView.cpp and modified to use Zoom.
+void TNPrint(Draw& w, const RichText& text, const Rect& page, const Vector<int>& pg, Zoom z)
+{
+	int lpage = text.GetHeight(page).page;
+	PrintPageDraw pw(w);
+	Size sz = w.GetPageMMs();
+	Size pgsz = page.Size();
+	int x = (6000 * sz.cx / 254 - pgsz.cx) / 2;	//600dpi*millimeters/25.4
+	int y = (6000 * sz.cy / 254 - pgsz.cy) / 2;//compute point for border (white area around text)
+	
+	for(int pi = 0; pi < pg.GetCount(); pi++) {
+		int i = pg[pi];
+		w.StartPage();
+		w.Offset(x, y);
+		pw.SetPage(i);
+		PaintInfo paintinfo;
+		paintinfo.top = PageY(i, 0);
+		paintinfo.bottom = PageY(i + 1, 0);
+		paintinfo.indexentry = Null;
+		if(text.IsPrintNoLinks())
+			paintinfo.hyperlink = Null;
+		
+		paintinfo.zoom = z;
+		Rect page2 = page;
+		page2.right *= z.d/z.m;	//Note that this works well only for Zoom(10,20). Zoom(10,15) breaks text to another pdf page too early.
+		page2.bottom *= z.d/z.m;
+		
+		text.Paint(pw, page2, paintinfo);
+		w.End();
+		String footer = text.GetFooter();
+		if(!IsNull(footer) && lpage) {
+			String n = Format(footer, i + 1, lpage + 1);
+			Size nsz = GetTextSize(n, Arial(90).Italic());
+			pw.Page(i).DrawText(
+				x + pgsz.cx - nsz.cx, y + pgsz.cy + 100,
+				n, Arial(90).Italic());
+		}
+		w.EndPage();
+	}
 }
+
+void TNPrint(Draw& w, const RichText& text, const Rect& page, Zoom z)
+{
+	int n = text.GetHeight(page).page;
+	Vector<int> pg;
+	for(int i = 0; i <= n; i++)
+		pg.Add(i);
+	TNPrint(w, text, page, pg, z);
+}
+
+
+}
+

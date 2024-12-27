@@ -37,6 +37,8 @@ public:
 	TwoFileSel();
 };
 
+void TNPrint(Draw& w, const RichText& text, const Rect& page, const Vector<int>& pagelist, Zoom z = Zoom(1,1));
+void TNPrint(Draw& w, const RichText& text, const Rect& page, Zoom z = Zoom(1,1));
 
 }
 

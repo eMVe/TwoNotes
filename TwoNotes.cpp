@@ -62,7 +62,7 @@ TwoNotes::TwoNotes()
 	:m_bAutoGenerateHtml(true)
 	,m_bAutoGeneratePdf(true)
 {
-	CtrlLayout(*this, "Two Notes V 0.0.1");
+	CtrlLayout(*this, "Two Notes V 0.1.0");
 
 	menu.Set([=](Bar& bar) {
 		bar.Sub("File", [=](Bar& bar) {
@@ -192,16 +192,24 @@ void TwoNotes::GenerateHtml()
 void TwoNotes::GeneratePdf()
 {
 
-	String outdir = GetExeDirFile("pdf");
+	String outdir = ::GetFileFolder(m_fileName);
+
+	if(outdir.IsEmpty()) outdir = "pdf";
+	else outdir += "/pdf";
+
 	RealizeDirectory(outdir);
 
 	String pathNoExt = m_fileName.Left(m_fileName.ReverseFind('.'));	//assume that m_fileName has at least one dot in it
 	String fileNameNoExt = ::GetFileName(pathNoExt);
 	String fileName = AppendFileName(outdir, fileNameNoExt + ".pdf");
 
-	Size page = Size(3968, 6074);
+	int xscale=110;	//define border taller, than the standard one
+	int yscale=100;	//border height is okay
+	
+	Size page = Size(3968*xscale/100, 6074*yscale/100);
+	
 	PdfDraw pdf;
-	UPP::Print(pdf, editor.Get(), page);
+	Upp::TNPrint(pdf, editor.Get(), page, Zoom(10,20));
 	SaveFile(fileName, pdf.Finish());
 }
 
@@ -218,7 +226,7 @@ bool TwoNotes::SaveEditorContent()
 		GenerateHtml();
 	}
 	if(m_bAutoGeneratePdf) {
-		//GeneratePdf();		//doesn't scale to our needs yet
+		GeneratePdf();		//doesn't scale to our needs yet
 	}
 	statusBar = m_fileName;
 	statusBar.Temporary("Saved...");
@@ -257,6 +265,17 @@ void TwoNotes::Quit()
 
 void TwoNotes::DragAndDrop(Point, PasteClip& d)
 {
+//	TODO When drop, DragAndDrop() is called multiple times.
+//	if(editor.IsModified()) {
+//		switch(PromptYesNoCancel("Do you want to save the changes to the document first?")) {
+//		case 1:
+//			if(SaveIt() == false) return;
+//			else break;
+//		default:
+//			break;
+//		}
+//	}
+	
 	if(IsAvailableFiles(d)) {
 		Vector<String> fn = GetFiles(d);
 		for(int open = 0; open < 2; open++) {
