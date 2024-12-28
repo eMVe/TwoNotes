@@ -194,9 +194,10 @@ void TNPrint(Draw& w, const RichText& text, const Rect& page, const Vector<int>&
 	Size pgsz = page.Size();
 	int x = (6000 * sz.cx / 254 - pgsz.cx) / 2;	//600dpi*millimeters/25.4
 	int y = (6000 * sz.cy / 254 - pgsz.cy) / 2;//compute point for border (white area around text)
-	
-	for(int pi = 0; pi < pg.GetCount(); pi++) {
-		int i = pg[pi];
+
+	int count = pg.GetCount();
+	for(int pageIndex = 0; pageIndex < pg.GetCount(); pageIndex++) {
+		int i = pg[pageIndex];
 		w.StartPage();
 		w.Offset(x, y);
 		pw.SetPage(i);
@@ -206,12 +207,12 @@ void TNPrint(Draw& w, const RichText& text, const Rect& page, const Vector<int>&
 		paintinfo.indexentry = Null;
 		if(text.IsPrintNoLinks())
 			paintinfo.hyperlink = Null;
-		
+
 		paintinfo.zoom = z;
 		Rect page2 = page;
 		page2.right *= z.d/z.m;	//Note that this works well only for Zoom(10,20). Zoom(10,15) breaks text to another pdf page too early.
 		page2.bottom *= z.d/z.m;
-		
+
 		text.Paint(pw, page2, paintinfo);
 		w.End();
 		String footer = text.GetFooter();
@@ -228,7 +229,10 @@ void TNPrint(Draw& w, const RichText& text, const Rect& page, const Vector<int>&
 
 void TNPrint(Draw& w, const RichText& text, const Rect& page, Zoom z)
 {
-	int n = text.GetHeight(page).page;
+	Rect page2 = page;
+	page2.right *= z.d/z.m;
+	page2.bottom *= z.d/z.m;
+	int n = text.GetHeight(page2).page;
 	Vector<int> pg;
 	for(int i = 0; i <= n; i++)
 		pg.Add(i);

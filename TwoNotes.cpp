@@ -62,7 +62,7 @@ TwoNotes::TwoNotes()
 	:m_bAutoGenerateHtml(true)
 	,m_bAutoGeneratePdf(true)
 {
-	CtrlLayout(*this, "Two Notes V 0.1.0");
+	CtrlLayout(*this, "Two Notes V 0.1.1");
 
 	menu.Set([=](Bar& bar) {
 		bar.Sub("File", [=](Bar& bar) {
@@ -317,3 +317,5 @@ GUI_APP_MAIN
 
 	twoNotes.Run();
 }
+
+
